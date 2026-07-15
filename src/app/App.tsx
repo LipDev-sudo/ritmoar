@@ -29,6 +29,7 @@ import {
   dueTone,
   formatDate,
   nextStatus,
+  normalizeTasks,
   priorityMeta,
   statusLabel,
   todayIso,
@@ -44,8 +45,10 @@ type Accent = "cyan" | "violet" | "emerald" | "rose";
 type Density = "compacta" | "confortavel";
 type BackgroundPreset = "aurora" | "workspace" | "city" | "minimal";
 
-const STORAGE_KEY = "dashboard-g-pro-tasks-v2";
-const SETTINGS_KEY = "dashboard-g-pro-settings";
+const STORAGE_KEY = "ritmoar-tasks-v1";
+const SETTINGS_KEY = "ritmoar-settings-v1";
+const LEGACY_TASKS_KEY = ["dashboard", "g", "pro", "tasks", "v2"].join("-");
+const LEGACY_SETTINGS_KEY = ["dashboard", "g", "pro", "settings"].join("-");
 
 type DashboardSettings = {
   visibleWidgets: Record<WidgetId, boolean>;
@@ -77,10 +80,11 @@ const defaultSettings: DashboardSettings = {
 
 function loadTasks() {
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+    const stored =
+      window.localStorage.getItem(STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_TASKS_KEY);
     if (!stored) return createInitialTasks();
-    const parsed = JSON.parse(stored) as Task[];
-    return Array.isArray(parsed) ? parsed : createInitialTasks();
+    return normalizeTasks(JSON.parse(stored));
   } catch {
     window.localStorage.removeItem(STORAGE_KEY);
     return createInitialTasks();
@@ -89,14 +93,16 @@ function loadTasks() {
 
 const widgetLabels: Record<WidgetId, string> = {
   newTask: "Nova tarefa",
-  board: "Quadro Kanban",
+  board: "Fluxo de trabalho",
   agenda: "Agenda",
-  reports: "Relatorios",
+  reports: "Relatórios",
 };
 
 function loadSettings(): DashboardSettings {
   try {
-    const stored = window.localStorage.getItem(SETTINGS_KEY);
+    const stored =
+      window.localStorage.getItem(SETTINGS_KEY) ??
+      window.localStorage.getItem(LEGACY_SETTINGS_KEY);
     if (!stored) return defaultSettings;
     const parsed = JSON.parse(stored) as Partial<DashboardSettings>;
     return {
@@ -153,7 +159,7 @@ const navItems: Array<{
   { id: "painel", label: "Painel", icon: LayoutDashboard },
   { id: "tarefas", label: "Tarefas", icon: CheckCircle2 },
   { id: "agenda", label: "Agenda", icon: CalendarDays },
-  { id: "relatorios", label: "Relatorios", icon: BarChart3 },
+  { id: "relatorios", label: "Relatórios", icon: BarChart3 },
 ];
 
 function CustomizationPanel({
@@ -347,22 +353,8 @@ function PersonalizedDashboard({
 }: {
   settings: DashboardSettings;
   panelGap: string;
-  newTask: {
-    title: string;
-    client: string;
-    priority: TaskPriority;
-    dueDate: string;
-    estimate: number;
-  };
-  setNewTask: Dispatch<
-    SetStateAction<{
-      title: string;
-      client: string;
-      priority: TaskPriority;
-      dueDate: string;
-      estimate: number;
-    }>
-  >;
+  newTask: NewTaskDraft;
+  setNewTask: Dispatch<SetStateAction<NewTaskDraft>>;
   addTask: () => void;
   filteredTasks: Task[];
   agendaTasks: Task[];
@@ -455,6 +447,7 @@ export default function App() {
   const [newTask, setNewTask] = useState<NewTaskDraft>({
     title: "",
     client: "",
+    owner: "Marina Costa",
     priority: "media" as TaskPriority,
     dueDate: todayIso(),
     estimate: 2,
@@ -475,7 +468,8 @@ export default function App() {
       const matchesQuery =
         !normalizedQuery ||
         task.title.toLowerCase().includes(normalizedQuery) ||
-        task.client.toLowerCase().includes(normalizedQuery);
+        task.client.toLowerCase().includes(normalizedQuery) ||
+        task.owner.toLowerCase().includes(normalizedQuery);
       const matchesPriority =
         priorityFilter === "todas" || task.priority === priorityFilter;
 
@@ -515,6 +509,7 @@ export default function App() {
         id: `task-${Date.now()}`,
         title: newTask.title.trim(),
         client: newTask.client.trim() || "Projeto interno",
+        owner: newTask.owner.trim() || "Equipe Ritmoar",
         status: "todo",
         priority: newTask.priority,
         dueDate: newTask.dueDate || todayIso(),
@@ -526,6 +521,7 @@ export default function App() {
     setNewTask({
       title: "",
       client: "",
+      owner: "Marina Costa",
       priority: "media",
       dueDate: todayIso(),
       estimate: 2,
@@ -607,10 +603,13 @@ export default function App() {
               <LayoutDashboard size={22} />
             </div>
             <div>
-              <p className="text-sm font-black">Dashboard G-Pro</p>
-              <p className="text-xs text-slate-400">Organizador de tarefas</p>
+              <p className="text-sm font-black">Ritmoar</p>
+              <p className="text-xs text-slate-400">Estúdio Norte</p>
             </div>
           </div>
+          <p className="mt-4 inline-flex w-fit rounded-full border border-white/10 px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-slate-400">
+            Demonstração de produto
+          </p>
 
           <nav className="mt-8 space-y-2">
             {navItems.map(({ id, label, icon: Icon }) => (
@@ -642,13 +641,13 @@ export default function App() {
             <div className="flex items-center gap-2" style={{ color: accent.color }}>
               <Sparkles size={16} />
               <span className="text-xs font-black uppercase tracking-[0.18em]">
-                Sprint ativo
+                Prioridades da semana
               </span>
             </div>
             <p className="mt-3 text-3xl font-black">{stats.progress}%</p>
             <p className="mt-1 text-xs leading-relaxed text-slate-400">
-              Entregas concluidas no ciclo atual. Continue movendo tarefas para
-              concluido.
+              Entregas concluídas nesta demonstração. Mantenha responsáveis e
+              prazos visíveis para a equipe.
             </p>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
               <div
@@ -661,17 +660,31 @@ export default function App() {
 
         <section className="flex min-w-0 flex-1 flex-col">
           <header className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-black/20">
+            <div className="mb-5 flex items-center justify-between lg:hidden">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent)] text-slate-950">
+                  <LayoutDashboard size={20} />
+                </div>
+                <div>
+                  <p className="text-sm font-black">Ritmoar</p>
+                  <p className="text-xs text-slate-400">Estúdio Norte</p>
+                </div>
+              </div>
+              <span className="rounded-full border border-white/10 px-2.5 py-1 text-[0.6rem] font-bold uppercase tracking-[0.12em] text-slate-400">
+                Demonstração de produto
+              </span>
+            </div>
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-300">
                   {activeTitle}
                 </p>
                 <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">
-                  Organize tarefas, prazos e prioridades.
+                  Ritmo claro. Trabalho em movimento.
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-                  Um painel operacional para freelancers e pequenas equipes
-                  acompanharem demandas, foco do dia e progresso de entrega.
+                  Prioridades, responsáveis e prazos em uma visão direta para
+                  pequenas equipes que precisam entregar sem excesso de processo.
                 </p>
               </div>
 
@@ -679,7 +692,7 @@ export default function App() {
                 {[
                   ["Total", stats.total],
                   ["Em progresso", stats.doing],
-                  ["Concluidas", stats.done],
+                  ["Concluídas", stats.done],
                   ["Horas abertas", stats.hours],
                 ].map(([label, value]) => (
                   <div
@@ -808,7 +821,7 @@ function BoardToolbar({
         >
           <option value="todas">Todas</option>
           <option value="alta">Alta</option>
-          <option value="media">Media</option>
+          <option value="media">Média</option>
           <option value="baixa">Baixa</option>
         </select>
       </label>
@@ -888,7 +901,9 @@ function TasksBoard({
 
                 {columnTasks.length === 0 && (
                   <div className="rounded-3xl border border-dashed border-white/10 p-6 text-center text-sm text-slate-600">
-                    Nenhuma tarefa aqui.
+                    {query || priorityFilter !== "todas"
+                      ? "Nenhum resultado com estes filtros."
+                      : "Nenhuma tarefa nesta etapa."}
                   </div>
                 )}
               </div>
@@ -917,7 +932,7 @@ function AgendaMiniWidget({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-black">Agenda</h2>
-          <p className="text-sm text-slate-400">Proximos prazos abertos.</p>
+          <p className="text-sm text-slate-400">Próximos prazos em aberto.</p>
         </div>
         <CalendarDays className="text-[var(--accent)]" size={20} />
       </div>
@@ -934,7 +949,7 @@ function AgendaMiniWidget({
               </p>
               <h3 className="mt-1 truncate text-sm font-black">{task.title}</h3>
               <p className="mt-1 truncate text-xs text-slate-500">
-                {task.client}
+                {task.client} · {task.owner}
               </p>
             </div>
             <button
@@ -942,7 +957,7 @@ function AgendaMiniWidget({
               onClick={() => updateStatus(task.id, nextStatus(task.status))}
               className="shrink-0 rounded-xl bg-[var(--accent-soft)] px-3 py-2 text-xs font-black text-slate-100"
             >
-              Avancar
+              Avançar tarefa
             </button>
           </div>
         ))}
@@ -979,8 +994,8 @@ function ReportsMiniWidget({
       <div className="p-5">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-black">Relatorios</h2>
-          <p className="text-sm text-slate-400">Resumo do sprint atual.</p>
+          <h2 className="text-lg font-black">Relatórios</h2>
+          <p className="text-sm text-slate-400">Resumo das prioridades da semana.</p>
         </div>
         <BarChart3 className="text-[var(--accent)]" size={20} />
       </div>
@@ -1054,7 +1069,7 @@ function AgendaView({
               <div>
                 <h3 className="font-black">{task.title}</h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  {task.client} - {statusLabel[task.status]} - {task.estimate}h
+                  {task.client} · {task.owner} · {statusLabel[task.status]} · {task.estimate}h
                 </p>
               </div>
               <div className="flex items-center gap-2 lg:justify-end">
@@ -1070,7 +1085,7 @@ function AgendaView({
                   onClick={() => updateStatus(task.id, nextStatus(task.status))}
                   className="rounded-xl bg-cyan-300/10 px-3 py-2 text-xs font-black text-cyan-200"
                 >
-                  Avancar
+                  Avançar
                 </button>
               </div>
             </div>
@@ -1085,9 +1100,9 @@ function AgendaView({
       </div>
 
       <div className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5">
-        <h2 className="text-lg font-black">Historico recente</h2>
+        <h2 className="text-lg font-black">Histórico recente</h2>
         <p className="text-sm text-slate-400">
-          Ultimas tarefas marcadas como concluidas.
+          Últimas tarefas marcadas como concluídas.
         </p>
         <div className="mt-5 space-y-3">
           {doneTasks.map((task) => (
@@ -1100,7 +1115,7 @@ function AgendaView({
           ))}
           {doneTasks.length === 0 && (
             <div className="rounded-3xl border border-dashed border-white/10 p-6 text-center text-sm text-slate-600">
-              Nada concluido ainda.
+              Nenhuma entrega concluída ainda.
             </div>
           )}
         </div>
@@ -1141,9 +1156,9 @@ function ReportsView({
   return (
     <section className="mt-5 grid gap-5 xl:grid-cols-[1fr_420px]">
       <div className="rounded-[28px] border border-white/10 bg-white/[0.045] p-5">
-        <h2 className="text-lg font-black">Relatorios do sprint</h2>
+        <h2 className="text-lg font-black">Relatório da semana</h2>
         <p className="text-sm text-slate-400">
-          Leitura rapida do volume, risco e progresso das entregas.
+          Leitura rápida do volume, risco e andamento das entregas.
         </p>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -1167,7 +1182,7 @@ function ReportsView({
 
         <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-black">Conclusao geral</h3>
+            <h3 className="font-black">Conclusão geral</h3>
             <span className="text-sm font-black text-cyan-200">
               {stats.done}/{stats.total}
             </span>
@@ -1190,7 +1205,7 @@ function ReportsView({
         <h2 className="text-lg font-black">Resumo operacional</h2>
         <div className="mt-5 space-y-3 text-sm text-slate-400">
           <p>
-            O sprint tem <strong className="text-white">{stats.todo}</strong>{" "}
+            A equipe tem <strong className="text-white">{stats.todo}</strong>{" "}
             tarefas a fazer e{" "}
             <strong className="text-white">{stats.doing}</strong> em progresso.
           </p>
@@ -1202,8 +1217,8 @@ function ReportsView({
             alta prioridade ainda abertas.
           </p>
           <p>
-            Use a Agenda para atacar primeiro os prazos mais curtos e o Kanban
-            para manter o fluxo limpo.
+            Use a Agenda para revisar os prazos mais próximos e o fluxo de
+            trabalho para manter responsáveis e andamento visíveis.
           </p>
         </div>
       </div>

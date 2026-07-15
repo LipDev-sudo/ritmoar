@@ -5,6 +5,7 @@ export type Task = {
   id: string;
   title: string;
   client: string;
+  owner: string;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string;
@@ -20,7 +21,7 @@ export const columns: Array<{
 }> = [
   { status: "todo", title: "A Fazer", description: "Demandas capturadas e priorizadas" },
   { status: "doing", title: "Em Progresso", description: "Trabalho ativo do dia" },
-  { status: "done", title: "Concluido", description: "Entregas finalizadas" },
+  { status: "done", title: "Concluído", description: "Entregas finalizadas" },
 ];
 
 export const priorityMeta: Record<
@@ -32,7 +33,7 @@ export const priorityMeta: Record<
     className: "border-rose-400/30 bg-rose-400/10 text-rose-200",
   },
   media: {
-    label: "Media",
+    label: "Média",
     className: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
   },
   baixa: {
@@ -44,7 +45,7 @@ export const priorityMeta: Record<
 export const statusLabel: Record<TaskStatus, string> = {
   todo: "A Fazer",
   doing: "Em Progresso",
-  done: "Concluido",
+  done: "Concluído",
 };
 
 export function todayIso() {
@@ -62,8 +63,9 @@ export function createInitialTasks(): Task[] {
   return [
     {
       id: "task-1",
-      title: "Revisar apresentacao dos projetos",
-      client: "Portfolio LipDev",
+      title: "Aprovar roteiro da campanha de lançamento",
+      client: "Casa Mimo",
+      owner: "Marina Costa",
       status: "doing",
       priority: "alta",
       dueDate: offsetIso(1),
@@ -71,32 +73,84 @@ export function createInitialTasks(): Task[] {
     },
     {
       id: "task-2",
-      title: "Validar estados vazios do agendamento",
-      client: "Bookly",
+      title: "Ajustar página de captação",
+      client: "Casa Mimo",
+      owner: "Caio Mendes",
       status: "todo",
       priority: "alta",
       dueDate: offsetIso(2),
-      estimate: 2,
+      estimate: 4,
     },
     {
       id: "task-3",
-      title: "Revisar responsividade dos graficos",
-      client: "Dashboard G-Pro",
+      title: "Preparar variações para redes sociais",
+      client: "Feira da Vila",
+      owner: "Luiza Ramos",
       status: "todo",
       priority: "media",
-      dueDate: offsetIso(4),
-      estimate: 2,
+      dueDate: offsetIso(3),
+      estimate: 3,
     },
     {
       id: "task-4",
-      title: "Documentar fluxo de demonstracao",
-      client: "Plataforma de pedidos",
-      status: "done",
+      title: "Revisar orçamento de produção",
+      client: "Feira da Vila",
+      owner: "Marina Costa",
+      status: "doing",
+      priority: "alta",
+      dueDate: offsetIso(0),
+      estimate: 2,
+    },
+    {
+      id: "task-5",
+      title: "Consolidar aprendizados da retrospectiva",
+      client: "Operação interna",
+      owner: "Caio Mendes",
+      status: "todo",
       priority: "baixa",
-      dueDate: offsetIso(-1),
+      dueDate: offsetIso(5),
       estimate: 1,
     },
+    {
+      id: "task-6",
+      title: "Entregar guia visual ao cliente",
+      client: "Casa Mimo",
+      owner: "Luiza Ramos",
+      status: "done",
+      priority: "media",
+      dueDate: offsetIso(-1),
+      estimate: 5,
+    },
   ];
+}
+
+function isStoredTask(value: unknown): value is Omit<Task, "owner"> & {
+  owner?: unknown;
+} {
+  if (!value || typeof value !== "object") return false;
+
+  const task = value as Partial<Task>;
+  return (
+    typeof task.id === "string" &&
+    typeof task.title === "string" &&
+    typeof task.client === "string" &&
+    (task.status === "todo" || task.status === "doing" || task.status === "done") &&
+    (task.priority === "alta" || task.priority === "media" || task.priority === "baixa") &&
+    typeof task.dueDate === "string" &&
+    typeof task.estimate === "number"
+  );
+}
+
+export function normalizeTasks(value: unknown): Task[] {
+  if (!Array.isArray(value)) return createInitialTasks();
+
+  return value.filter(isStoredTask).map((task) => ({
+    ...task,
+    owner:
+      typeof task.owner === "string" && task.owner.trim()
+        ? task.owner.trim()
+        : "Equipe Ritmoar",
+  }));
 }
 
 export function formatDate(value: string) {
@@ -136,6 +190,6 @@ export function dueLabel(task: Task) {
   const days = daysUntil(task.dueDate);
   if (days < 0) return `${Math.abs(days)}d atrasada`;
   if (days === 0) return "Vence hoje";
-  if (days === 1) return "Vence amanha";
+  if (days === 1) return "Vence amanhã";
   return `Faltam ${days}d`;
 }

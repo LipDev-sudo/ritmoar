@@ -20,7 +20,7 @@ export function NewTaskPanel({ newTask, setNewTask, addTask }: NewTaskPanelProps
         <div className="flex items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-black">Nova tarefa</h2>
-            <p className="text-sm text-slate-400">Capture a demanda antes que ela escape.</p>
+            <p className="text-sm text-slate-400">Registre contexto, responsável e prazo.</p>
           </div>
           <div className="shrink-0 rounded-2xl bg-cyan-300/10 p-3 text-cyan-200">
             <Plus size={20} />
@@ -34,7 +34,7 @@ export function NewTaskPanel({ newTask, setNewTask, addTask }: NewTaskPanelProps
               value={newTask.title}
               onChange={(event) => setNewTask((task) => ({ ...task, title: event.target.value }))}
               onKeyDown={(event) => event.key === "Enter" && addTask()}
-              placeholder="Ex: Revisar proposta comercial"
+              placeholder="Ex: Aprovar roteiro da campanha"
               className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
             />
           </label>
@@ -44,7 +44,17 @@ export function NewTaskPanel({ newTask, setNewTask, addTask }: NewTaskPanelProps
             <input
               value={newTask.client}
               onChange={(event) => setNewTask((task) => ({ ...task, client: event.target.value }))}
-              placeholder="Ex: Portfolio"
+              placeholder="Ex: Casa Mimo"
+              className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
+            />
+          </label>
+
+          <label className="block min-w-0">
+            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Responsável</span>
+            <input
+              value={newTask.owner}
+              onChange={(event) => setNewTask((task) => ({ ...task, owner: event.target.value }))}
+              placeholder="Ex: Marina Costa"
               className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
             />
           </label>
@@ -101,10 +111,10 @@ export function NewTaskPanel({ newTask, setNewTask, addTask }: NewTaskPanelProps
         <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/40 p-4">
           <div className="flex items-center gap-2 text-slate-300">
             <Clock3 size={16} />
-            <span className="text-sm font-black">Foco de hoje</span>
+            <span className="text-sm font-black">Atenção da equipe</span>
           </div>
           <p className="mt-2 text-sm leading-6 text-slate-400">
-            Termine uma tarefa de alta prioridade antes de abrir novas demandas. O painel destaca o que ainda consome horas.
+            Antes de iniciar uma nova frente, confirme quem responde pelas entregas de alta prioridade e pelos prazos de hoje.
           </p>
         </div>
       </div>

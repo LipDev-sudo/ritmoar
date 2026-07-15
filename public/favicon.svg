@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ritmoar">
+  <rect width="64" height="64" rx="16" fill="#1d2521"/>
+  <path d="M17 18h24c6 0 10 4 10 10s-4 10-10 10H17V18Z" fill="none" stroke="#f4f1e8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M17 32h22M17 46h30" fill="none" stroke="#7fba91" stroke-width="6" stroke-linecap="round"/>
+</svg>

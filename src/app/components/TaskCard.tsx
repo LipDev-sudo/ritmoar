@@ -6,6 +6,7 @@ import {
   Circle,
   Clock3,
   Trash2,
+  UserRound,
 } from "lucide-react";
 import {
   dueTone,
@@ -47,6 +48,10 @@ export function TaskCard({ task, updateStatus, deleteTask }: TaskCardProps) {
 
       <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
         <span className="rounded-full bg-white/5 px-2.5 py-1">{task.client}</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
+          <UserRound size={12} />
+          {task.owner}
+        </span>
         <span className={`inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 ${dueTone(task)}`}>
           <CalendarDays size={12} />
           {formatDate(task.dueDate)}
@@ -74,7 +79,7 @@ export function TaskCard({ task, updateStatus, deleteTask }: TaskCardProps) {
           className="inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-cyan-200 transition hover:bg-cyan-300/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-30"
         >
           {task.status === "done" ? <CheckCircle2 size={14} /> : <Circle size={14} />}
-          Avancar
+          Avançar
           <ChevronRight size={14} />
         </button>
       </div>

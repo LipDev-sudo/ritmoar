@@ -1,5 +1,5 @@
 {
-  "name": "dashboard-g-pro",
+  "name": "ritmoar-demo",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -86,5 +86,5 @@
     "typescript-eslint": "^8.64.0",
     "vite": "^6.4.3"
   },
-  "description": "Organizador de tarefas profissional para freelancers e pequenas equipes."
+  "description": "Demonstração de gestão de trabalho e prioridades para pequenas equipes."
 }
