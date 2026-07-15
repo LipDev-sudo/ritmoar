@@ -1,41 +1,82 @@
 # Dashboard G-Pro
 
-Organizador de tarefas profissional para freelancers e pequenas equipes.
+Dashboard demonstrativo para organizar tarefas, prazos e prioridades. A aplicacao funciona sem cadastro e salva os dados localmente no navegador, o que permite avaliar o fluxo completo sem credenciais externas.
 
-## Funcionalidades
+![Dashboard G-Pro em desktop](docs/screenshots/dashboard-desktop.png)
 
-- Quadro Kanban com etapas: A Fazer, Em Progresso e Concluido
-- Cadastro rapido de tarefas com cliente/projeto, prazo, prioridade e estimativa
-- Filtro por prioridade e busca por tarefa ou cliente
-- Indicadores de progresso, horas abertas e entregas concluidas
-- Persistencia local com `localStorage`, sem login obrigatorio
-- Interface responsiva para desktop e mobile
+## Demonstracao
+
+- quadro Kanban com etapas A Fazer, Em Progresso e Concluido;
+- cadastro de tarefas com projeto, prazo, prioridade e estimativa;
+- busca e filtro por prioridade;
+- agenda ordenada por prazo;
+- indicadores de progresso e carga de trabalho;
+- personalizacao de cor, fundo, densidade e ordem dos widgets;
+- persistencia local com `localStorage`.
+
+Os registros iniciais sao dados ficticios de demonstracao baseados nos projetos publicos do autor. Nenhuma integracao, cliente ou resultado comercial e simulado.
 
 ## Tecnologias
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- Lucide React
+- React 18;
+- TypeScript;
+- Vite;
+- Tailwind CSS 4;
+- Lucide React;
+- Playwright para testes de interface;
+- ESLint e GitHub Actions para qualidade continua.
 
-## Como Rodar
+## Executar localmente
+
+Requisitos: Node.js 22 e npm.
 
 ```bash
-npm install
+git clone https://github.com/LipDev-sudo/Dashboard-G-Pro.git
+cd Dashboard-G-Pro
+npm ci
 npm run dev
 ```
 
-## Build
+Acesse o endereco exibido pelo Vite. Os dados ficam somente no `localStorage` do navegador.
+
+## Verificacoes
 
 ```bash
+npm run lint
+npm run typecheck
 npm run build
+npx playwright install chromium
+npm test
 ```
+
+O teste Playwright cobre desktop (`1440x900`) e mobile (`390x844`), incluindo persistencia, foco do teclado e overflow horizontal.
+
+## Estrutura ativa
+
+```text
+src/
+  app/
+    components/       Componentes do fluxo de tarefas
+    dashboard/        Tipos, dados e regras do dominio
+    App.tsx            Orquestracao das telas e preferencias
+  main.tsx             Entrada da aplicacao
+tests/e2e/             Testes Playwright
+```
+
+O repositorio tambem preserva uma arquitetura experimental com Firebase que nao participa do bundle atual. Para habilita-la futuramente, use variaveis `VITE_*` locais e nunca publique credenciais privadas.
+
+Copie `.env.example` para `.env.local` apenas se for trabalhar nessa integracao. O dashboard demonstrativo atual nao depende dessas variaveis.
+
+## Screenshots
+
+| Desktop | Mobile |
+| --- | --- |
+| ![Desktop](docs/screenshots/dashboard-desktop.png) | ![Mobile](docs/screenshots/dashboard-mobile.png) |
 
 ## Autor
 
-Hamilton Felipe Soares da Silva - [LipDev.BR](https://github.com/LipDev-sudo)
+Hamilton Felipe Soares da Silva - [GitHub](https://github.com/LipDev-sudo)
 
 ## Licenca
 
-Este projeto esta sob a licenca MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Distribuido sob a licenca descrita em [LICENSE](LICENSE).
