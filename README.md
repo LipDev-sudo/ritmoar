@@ -1,20 +1,27 @@
-# Dashboard G-Pro
+# Ritmoar
 
-Dashboard demonstrativo para organizar tarefas, prazos e prioridades. A aplicacao funciona sem cadastro e salva os dados localmente no navegador, o que permite avaliar o fluxo completo sem credenciais externas.
+**Ritmo claro. Trabalho em movimento.**
 
-![Dashboard G-Pro em desktop](docs/screenshots/dashboard-desktop.png)
+Ritmoar é uma demonstração de produto para organizar prioridades, responsáveis e andamento do trabalho com clareza, sem excesso de complexidade. Foi pensada para pequenas equipes, freelancers e agências que precisam enxergar rapidamente o que está a fazer, em progresso, concluído ou em risco.
 
-## Demonstracao
+![Ritmoar em desktop](docs/screenshots/ritmoar-desktop.png)
 
-- quadro Kanban com etapas A Fazer, Em Progresso e Concluido;
-- cadastro de tarefas com projeto, prazo, prioridade e estimativa;
-- busca e filtro por prioridade;
-- agenda ordenada por prazo;
-- indicadores de progresso e carga de trabalho;
-- personalizacao de cor, fundo, densidade e ordem dos widgets;
-- persistencia local com `localStorage`.
+## Demonstração de produto
 
-Os registros iniciais sao dados ficticios de demonstracao baseados nos projetos publicos do autor. Nenhuma integracao, cliente ou resultado comercial e simulado.
+O workspace fictício **Estúdio Norte** apresenta um cenário coerente de pequena equipe. Projetos, tarefas, responsáveis e prazos existem apenas para demonstrar a experiência; não representam clientes, métricas ou resultados comerciais reais.
+
+- fluxo de trabalho com etapas A Fazer, Em Progresso e Concluído;
+- prioridade, responsável, prazo e estimativa visíveis em cada tarefa;
+- criação, busca, filtro, avanço e exclusão de tarefas;
+- agenda ordenada por prazo e relatório operacional;
+- personalização secundária de densidade, cores e blocos;
+- persistência local no navegador, sem cadastro ou serviço externo.
+
+## Direção do produto
+
+A interface usa papel quente apenas no canvas, superfícies brancas e texto grafite. Verde indica trabalho ativo e ações seguras; âmbar destaca atenção; terracota sinaliza alta prioridade e atraso. A tipografia local, as bordas suaves e as sombras discretas mantêm uma aparência SaaS atual sem depender de gradientes, imagens remotas ou fontes externas.
+
+O símbolo tipográfico representa três linhas de trabalho avançando. A marca evita referências a hábitos, música ou Pomodoro e posiciona Ritmoar explicitamente como ferramenta de organização e acompanhamento do trabalho em equipe.
 
 ## Tecnologias
 
@@ -24,7 +31,7 @@ Os registros iniciais sao dados ficticios de demonstracao baseados nos projetos 
 - Tailwind CSS 4;
 - Lucide React;
 - Playwright para testes de interface;
-- ESLint e GitHub Actions para qualidade continua.
+- ESLint e GitHub Actions para qualidade contínua.
 
 ## Executar localmente
 
@@ -37,19 +44,18 @@ npm ci
 npm run dev
 ```
 
-Acesse o endereco exibido pelo Vite. Os dados ficam somente no `localStorage` do navegador.
+Acesse o endereço exibido pelo Vite. Os dados ficam somente no `localStorage` do navegador. Para restaurar o workspace fictício, use **Personalizar painel → Restaurar padrão**.
 
-## Verificacoes
+## Verificações
 
 ```bash
-npm run lint
 npm run typecheck
+npm run lint
 npm run build
-npx playwright install chromium
 npm test
 ```
 
-O teste Playwright cobre desktop (`1440x900`) e mobile (`390x844`), incluindo persistencia, foco do teclado e overflow horizontal.
+A suíte Playwright cobre desktop (`1440×900`) e mobile (`390×844`), incluindo identidade, metadata, criação, persistência, busca, filtros, mudança de status, exclusão, preferências, foco de teclado, alvos de toque e ausência de overflow horizontal.
 
 ## Estrutura ativa
 
@@ -57,26 +63,26 @@ O teste Playwright cobre desktop (`1440x900`) e mobile (`390x844`), incluindo pe
 src/
   app/
     components/       Componentes do fluxo de tarefas
-    dashboard/        Tipos, dados e regras do dominio
-    App.tsx            Orquestracao das telas e preferencias
-  main.tsx             Entrada da aplicacao
+    dashboard/        Tipos, dados e regras do domínio
+    App.tsx            Orquestração das telas e preferências
+  main.tsx             Entrada da aplicação
 tests/e2e/             Testes Playwright
 ```
 
-O repositorio tambem preserva uma arquitetura experimental com Firebase que nao participa do bundle atual. Para habilita-la futuramente, use variaveis `VITE_*` locais e nunca publique credenciais privadas.
+O repositório preserva uma arquitetura experimental com Firebase que não participa do bundle ativo. Ela não é necessária para a demonstração Ritmoar. Caso seja explorada futuramente, use variáveis `VITE_*` locais e nunca publique credenciais privadas.
 
-Copie `.env.example` para `.env.local` apenas se for trabalhar nessa integracao. O dashboard demonstrativo atual nao depende dessas variaveis.
+Copie `.env.example` para `.env.local` somente ao trabalhar nessa integração. O modo demonstrativo atual não depende de variáveis de ambiente.
 
 ## Screenshots
 
 | Desktop | Mobile |
 | --- | --- |
-| ![Desktop](docs/screenshots/dashboard-desktop.png) | ![Mobile](docs/screenshots/dashboard-mobile.png) |
+| ![Ritmoar em desktop](docs/screenshots/ritmoar-desktop.png) | ![Ritmoar em mobile](docs/screenshots/ritmoar-mobile.png) |
 
 ## Autor
 
-Hamilton Felipe Soares da Silva - [GitHub](https://github.com/LipDev-sudo)
+Hamilton Felipe Soares da Silva — [GitHub](https://github.com/LipDev-sudo)
 
-## Licenca
+## Licença
 
-Distribuido sob a licenca descrita em [LICENSE](LICENSE).
+Distribuído sob a licença descrita em [LICENSE](LICENSE).
