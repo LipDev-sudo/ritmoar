@@ -103,6 +103,31 @@ test("Ritmoar uses the approved clean operational visual foundation", async ({
   );
   expect(decorativeGradients).toBe(0);
 
+  const amberTextOnWhiteContrast = await page
+    .getByText("Alta prioridade", { exact: true })
+    .first()
+    .locator("..")
+    .locator("p")
+    .first()
+    .evaluate((element) => {
+    const linearize = (value: number) =>
+      value <= 0.04045
+        ? value / 12.92
+        : Math.pow((value + 0.055) / 1.055, 2.4);
+    const luminance = (rgb: [number, number, number]) =>
+      0.2126 * linearize(rgb[0] / 255) +
+      0.7152 * linearize(rgb[1] / 255) +
+      0.0722 * linearize(rgb[2] / 255);
+    const amber = getComputedStyle(element).color.match(/\d+/g)!.map(Number) as [
+      number,
+      number,
+      number,
+    ];
+
+    return 1.05 / (luminance(amber) + 0.05);
+    });
+  expect(amberTextOnWhiteContrast).toBeGreaterThanOrEqual(4.5);
+
   const workflowTop = await page
     .getByRole("heading", { name: "Fluxo de trabalho" })
     .evaluate((element) => element.getBoundingClientRect().top);

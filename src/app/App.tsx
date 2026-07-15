@@ -97,7 +97,7 @@ const accentThemes: Record<
   },
   violet: {
     label: "Âmbar",
-    color: "#ad681d",
+    color: "#a6631a",
     soft: "#fbefdd",
     contrast: "#ffffff",
   },
@@ -524,7 +524,7 @@ function TasksBoard({
             );
             const statusColor =
               column.status === "todo"
-                ? "#ad681d"
+                ? "#a6631a"
                 : column.status === "doing"
                   ? "#2f6b4f"
                   : "#5d7764";
@@ -657,7 +657,7 @@ function ReportsMiniWidget({ stats }: { stats: Stats }) {
           {[
             ["Progresso", `${stats.progress}%`, "text-[#2f6b4f]"],
             ["Atrasadas", stats.overdue, "text-[#b04f39]"],
-            ["Alta prioridade", stats.highPriority, "text-[#ad681d]"],
+            ["Alta prioridade", stats.highPriority, "text-[#a6631a]"],
             ["Horas abertas", `${stats.hours}h`, "text-[#1d2521]"],
           ].map(([label, value, tone]) => (
             <div key={String(label)} className={`${insetClass} p-4`}>
@@ -929,7 +929,7 @@ function ReportsView({ tasks, stats }: { tasks: Task[]; stats: Stats }) {
         <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {[
             ["Progresso", `${stats.progress}%`, "text-[#2f6b4f]"],
-            ["Alta prioridade", stats.highPriority, "text-[#ad681d]"],
+            ["Alta prioridade", stats.highPriority, "text-[#a6631a]"],
             ["Atrasadas", stats.overdue, "text-[#b04f39]"],
             ["Horas abertas", `${stats.hours}h`, "text-[#1d2521]"],
           ].map(([label, value, tone]) => (
@@ -962,7 +962,7 @@ function ReportsView({ tasks, stats }: { tasks: Task[]; stats: Stats }) {
           <p>
             <strong className="text-[#b04f39]">{stats.overdue}</strong> tarefas
             estão atrasadas e{" "}
-            <strong className="text-[#ad681d]">{stats.highPriority}</strong> de
+            <strong className="text-[#a6631a]">{stats.highPriority}</strong> de
             alta prioridade seguem abertas.
           </p>
           <p>
@@ -988,7 +988,7 @@ function Header({
 }) {
   const metrics = [
     ["Em progresso", stats.doing, "text-[#2f6b4f]"],
-    ["Alta prioridade", stats.highPriority, "text-[#ad681d]"],
+    ["Alta prioridade", stats.highPriority, "text-[#a6631a]"],
     ["Atrasadas", stats.overdue, "text-[#b04f39]"],
     ["Horas abertas", `${stats.hours}h`, "text-[#1d2521]"],
   ];
