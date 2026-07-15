@@ -13,38 +13,38 @@ import {
   BarChart3,
   CalendarDays,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Circle,
-  Clock3,
   Filter,
   LayoutDashboard,
-  Plus,
   Search,
   Settings2,
   Sparkles,
-  Trash2,
 } from "lucide-react";
+import { NewTaskPanel } from "./components/NewTaskPanel";
+import { TaskCard } from "./components/TaskCard";
+import {
+  columns,
+  createInitialTasks,
+  daysUntil,
+  dueLabel,
+  dueTone,
+  formatDate,
+  nextStatus,
+  priorityMeta,
+  statusLabel,
+  todayIso,
+  type NewTaskDraft,
+  type Task,
+  type TaskPriority,
+  type TaskStatus,
+} from "./dashboard/task-model";
 
 type View = "painel" | "tarefas" | "agenda" | "relatorios";
-type TaskStatus = "todo" | "doing" | "done";
-type TaskPriority = "alta" | "media" | "baixa";
 type WidgetId = "newTask" | "board" | "agenda" | "reports";
 type Accent = "cyan" | "violet" | "emerald" | "rose";
 type Density = "compacta" | "confortavel";
 type BackgroundPreset = "aurora" | "workspace" | "city" | "minimal";
 
-type Task = {
-  id: string;
-  title: string;
-  client: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  dueDate: string;
-  estimate: number;
-};
-
-const STORAGE_KEY = "dashboard-g-pro-tasks";
+const STORAGE_KEY = "dashboard-g-pro-tasks-v2";
 const SETTINGS_KEY = "dashboard-g-pro-settings";
 
 type DashboardSettings = {
@@ -75,12 +75,45 @@ const defaultSettings: DashboardSettings = {
   background: "aurora",
 };
 
+function loadTasks() {
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (!stored) return createInitialTasks();
+    const parsed = JSON.parse(stored) as Task[];
+    return Array.isArray(parsed) ? parsed : createInitialTasks();
+  } catch {
+    window.localStorage.removeItem(STORAGE_KEY);
+    return createInitialTasks();
+  }
+}
+
 const widgetLabels: Record<WidgetId, string> = {
   newTask: "Nova tarefa",
   board: "Quadro Kanban",
   agenda: "Agenda",
   reports: "Relatorios",
 };
+
+function loadSettings(): DashboardSettings {
+  try {
+    const stored = window.localStorage.getItem(SETTINGS_KEY);
+    if (!stored) return defaultSettings;
+    const parsed = JSON.parse(stored) as Partial<DashboardSettings>;
+    return {
+      visibleWidgets: { ...defaultSettings.visibleWidgets, ...parsed.visibleWidgets },
+      widgetAccents: { ...defaultSettings.widgetAccents, ...parsed.widgetAccents },
+      widgetOrder: parsed.widgetOrder?.length
+        ? parsed.widgetOrder.filter((id): id is WidgetId => id in widgetLabels)
+        : defaultSettings.widgetOrder,
+      accent: parsed.accent ?? defaultSettings.accent,
+      density: parsed.density ?? defaultSettings.density,
+      background: parsed.background ?? defaultSettings.background,
+    };
+  } catch {
+    window.localStorage.removeItem(SETTINGS_KEY);
+    return defaultSettings;
+  }
+}
 
 const accentThemes: Record<Accent, { label: string; color: string; soft: string }> = {
   cyan: { label: "Ciano", color: "#67e8f9", soft: "rgba(103,232,249,0.14)" },
@@ -112,84 +145,6 @@ const backgroundPresets: Record<BackgroundPreset, { label: string; image: string
   },
 };
 
-const initialTasks: Task[] = [
-  {
-    id: "task-1",
-    title: "Criar landing page do novo servico",
-    client: "LipDev.BR",
-    status: "doing",
-    priority: "alta",
-    dueDate: "2026-06-03",
-    estimate: 4,
-  },
-  {
-    id: "task-2",
-    title: "Revisar funil de captura de leads",
-    client: "Clinica Norte",
-    status: "todo",
-    priority: "alta",
-    dueDate: "2026-06-04",
-    estimate: 3,
-  },
-  {
-    id: "task-3",
-    title: "Organizar backlog da automacao WhatsApp",
-    client: "Imob Prime",
-    status: "todo",
-    priority: "media",
-    dueDate: "2026-06-06",
-    estimate: 2,
-  },
-  {
-    id: "task-4",
-    title: "Publicar relatorio semanal",
-    client: "G-Pro",
-    status: "done",
-    priority: "baixa",
-    dueDate: "2026-06-01",
-    estimate: 1,
-  },
-];
-
-const columns: Array<{ status: TaskStatus; title: string; description: string }> = [
-  {
-    status: "todo",
-    title: "A Fazer",
-    description: "Demandas capturadas e priorizadas",
-  },
-  {
-    status: "doing",
-    title: "Em Progresso",
-    description: "Trabalho ativo do dia",
-  },
-  {
-    status: "done",
-    title: "Concluido",
-    description: "Entregas finalizadas",
-  },
-];
-
-const priorityMeta: Record<TaskPriority, { label: string; className: string }> = {
-  alta: {
-    label: "Alta",
-    className: "border-rose-400/30 bg-rose-400/10 text-rose-200",
-  },
-  media: {
-    label: "Media",
-    className: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
-  },
-  baixa: {
-    label: "Baixa",
-    className: "border-emerald-400/30 bg-emerald-400/10 text-emerald-200",
-  },
-};
-
-const statusLabel: Record<TaskStatus, string> = {
-  todo: "A Fazer",
-  doing: "Em Progresso",
-  done: "Concluido",
-};
-
 const navItems: Array<{
   id: View;
   label: string;
@@ -200,125 +155,6 @@ const navItems: Array<{
   { id: "agenda", label: "Agenda", icon: CalendarDays },
   { id: "relatorios", label: "Relatorios", icon: BarChart3 },
 ];
-
-function todayIso() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function formatDate(value: string) {
-  const [year, month, day] = value.split("-");
-  if (!year || !month || !day) return "Sem prazo";
-  return `${day}/${month}`;
-}
-
-function nextStatus(status: TaskStatus): TaskStatus {
-  if (status === "todo") return "doing";
-  if (status === "doing") return "done";
-  return "done";
-}
-
-function previousStatus(status: TaskStatus): TaskStatus {
-  if (status === "done") return "doing";
-  if (status === "doing") return "todo";
-  return "todo";
-}
-
-function daysUntil(value: string) {
-  const today = new Date(todayIso()).getTime();
-  const date = new Date(`${value}T00:00:00`).getTime();
-  return Math.round((date - today) / 86_400_000);
-}
-
-function dueTone(task: Task) {
-  if (task.status === "done") return "text-emerald-300";
-  const days = daysUntil(task.dueDate);
-  if (days < 0) return "text-rose-300";
-  if (days <= 1) return "text-amber-200";
-  return "text-slate-400";
-}
-
-function dueLabel(task: Task) {
-  if (task.status === "done") return "Finalizada";
-  const days = daysUntil(task.dueDate);
-  if (days < 0) return `${Math.abs(days)}d atrasada`;
-  if (days === 0) return "Vence hoje";
-  if (days === 1) return "Vence amanha";
-  return `Faltam ${days}d`;
-}
-
-function TaskCard({
-  task,
-  updateStatus,
-  deleteTask,
-}: {
-  task: Task;
-  updateStatus: (id: string, status: TaskStatus) => void;
-  deleteTask: (id: string) => void;
-}) {
-  return (
-    <article className="rounded-3xl border border-white/10 bg-[#0b1020] p-4 shadow-xl shadow-black/20">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <span
-            className={`inline-flex rounded-full border px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-[0.12em] ${
-              priorityMeta[task.priority].className
-            }`}
-          >
-            {priorityMeta[task.priority].label}
-          </span>
-          <h4 className="mt-3 text-sm font-black leading-5 text-white">
-            {task.title}
-          </h4>
-        </div>
-        <button
-          type="button"
-          onClick={() => deleteTask(task.id)}
-          className="rounded-xl p-2 text-slate-600 transition hover:bg-rose-400/10 hover:text-rose-200"
-          aria-label="Remover tarefa"
-        >
-          <Trash2 size={15} />
-        </button>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
-        <span className="rounded-full bg-white/5 px-2.5 py-1">
-          {task.client}
-        </span>
-        <span className={`inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 ${dueTone(task)}`}>
-          <CalendarDays size={12} />
-          {formatDate(task.dueDate)}
-        </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-          <Clock3 size={12} />
-          {task.estimate}h
-        </span>
-      </div>
-
-      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
-        <button
-          type="button"
-          disabled={task.status === "todo"}
-          onClick={() => updateStatus(task.id, previousStatus(task.status))}
-          className="inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-400 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          <ChevronLeft size={14} />
-          Voltar
-        </button>
-
-        <button
-          type="button"
-          onClick={() => updateStatus(task.id, nextStatus(task.status))}
-          disabled={task.status === "done"}
-          className="inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-cyan-200 transition hover:bg-cyan-300/10 disabled:cursor-not-allowed disabled:opacity-30"
-        >
-          {task.status === "done" ? <CheckCircle2 size={14} /> : <Circle size={14} />}
-          Avancar
-          <ChevronRight size={14} />
-        </button>
-      </div>
-    </article>
-  );
-}
 
 function CustomizationPanel({
   settings,
@@ -589,11 +425,11 @@ function PersonalizedDashboard({
   }
 
   return (
-    <div className={`grid xl:grid-cols-2 ${panelGap}`}>
+    <div className={`grid min-w-0 xl:grid-cols-2 ${panelGap}`}>
       {visibleOrder.map((id) => (
         <div
           key={id}
-          className={id === "board" ? "xl:col-span-2" : undefined}
+          className={`min-w-0 ${id === "board" ? "xl:col-span-2" : ""}`}
           style={
             {
               "--accent": accentThemes[settings.widgetAccents[id]].color,
@@ -610,60 +446,19 @@ function PersonalizedDashboard({
 
 export default function App() {
   const [activeView, setActiveView] = useState<View>("painel");
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [settings, setSettings] = useState<DashboardSettings>(defaultSettings);
+  const [tasks, setTasks] = useState<Task[]>(loadTasks);
+  const [settings, setSettings] = useState<DashboardSettings>(loadSettings);
   const [query, setQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState<"todas" | TaskPriority>(
     "todas",
   );
-  const [newTask, setNewTask] = useState({
+  const [newTask, setNewTask] = useState<NewTaskDraft>({
     title: "",
     client: "",
     priority: "media" as TaskPriority,
     dueDate: todayIso(),
     estimate: 2,
   });
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (!stored) return;
-
-    try {
-      const parsed = JSON.parse(stored) as Task[];
-      if (Array.isArray(parsed)) {
-        setTasks(parsed);
-      }
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
-  }, []);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(SETTINGS_KEY);
-    if (!stored) return;
-
-    try {
-      const parsed = JSON.parse(stored) as Partial<DashboardSettings>;
-      setSettings({
-        visibleWidgets: {
-          ...defaultSettings.visibleWidgets,
-          ...parsed.visibleWidgets,
-        },
-        widgetAccents: {
-          ...defaultSettings.widgetAccents,
-          ...parsed.widgetAccents,
-        },
-        widgetOrder: parsed.widgetOrder?.length
-          ? parsed.widgetOrder.filter((id): id is WidgetId => id in widgetLabels)
-          : defaultSettings.widgetOrder,
-        accent: parsed.accent ?? defaultSettings.accent,
-        density: parsed.density ?? defaultSettings.density,
-        background: parsed.background ?? defaultSettings.background,
-      });
-    } catch {
-      window.localStorage.removeItem(SETTINGS_KEY);
-    }
-  }, []);
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
@@ -970,159 +765,6 @@ export default function App() {
         </section>
       </div>
     </main>
-  );
-}
-
-function NewTaskPanel({
-  newTask,
-  setNewTask,
-  addTask,
-}: {
-  newTask: {
-    title: string;
-    client: string;
-    priority: TaskPriority;
-    dueDate: string;
-    estimate: number;
-  };
-  setNewTask: Dispatch<
-    SetStateAction<{
-      title: string;
-      client: string;
-      priority: TaskPriority;
-      dueDate: string;
-      estimate: number;
-    }>
-  >;
-  addTask: () => void;
-}) {
-  return (
-    <section className="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045]">
-      <div className="h-1 bg-[var(--accent)]" />
-      <div className="p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-black">Nova tarefa</h2>
-          <p className="text-sm text-slate-400">
-            Capture a demanda antes que ela escape.
-          </p>
-        </div>
-        <div className="rounded-2xl bg-cyan-300/10 p-3 text-cyan-200">
-          <Plus size={20} />
-        </div>
-      </div>
-
-      <div className="mt-5 space-y-3">
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-            Tarefa
-          </span>
-          <input
-            value={newTask.title}
-            onChange={(event) =>
-              setNewTask((task) => ({ ...task, title: event.target.value }))
-            }
-            onKeyDown={(event) => {
-              if (event.key === "Enter") addTask();
-            }}
-            placeholder="Ex: Revisar proposta comercial"
-            className="h-12 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-            Cliente ou projeto
-          </span>
-          <input
-            value={newTask.client}
-            onChange={(event) =>
-              setNewTask((task) => ({ ...task, client: event.target.value }))
-            }
-            placeholder="Ex: G-Pro"
-            className="h-12 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60"
-          />
-        </label>
-
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-              Prazo
-            </span>
-            <input
-              type="date"
-              value={newTask.dueDate}
-              onChange={(event) =>
-                setNewTask((task) => ({ ...task, dueDate: event.target.value }))
-              }
-              className="h-12 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition focus:border-cyan-300/60"
-            />
-          </label>
-
-          <label className="block">
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-              Horas
-            </span>
-            <input
-              type="number"
-              min="1"
-              max="24"
-              value={newTask.estimate}
-              onChange={(event) =>
-                setNewTask((task) => ({
-                  ...task,
-                  estimate: Number(event.target.value),
-                }))
-              }
-              className="h-12 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition focus:border-cyan-300/60"
-            />
-          </label>
-        </div>
-
-        <div>
-          <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
-            Prioridade
-          </span>
-          <div className="grid grid-cols-3 gap-2">
-            {(["alta", "media", "baixa"] as TaskPriority[]).map((priority) => (
-              <button
-                key={priority}
-                type="button"
-                onClick={() => setNewTask((task) => ({ ...task, priority }))}
-                className={`rounded-2xl border px-3 py-2 text-xs font-black transition ${
-                  newTask.priority === priority
-                    ? priorityMeta[priority].className
-                    : "border-white/10 bg-slate-950/40 text-slate-500 hover:text-slate-300"
-                }`}
-              >
-                {priorityMeta[priority].label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={addTask}
-          className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 font-black text-slate-950 transition hover:bg-cyan-200"
-        >
-          <Plus size={17} />
-          Adicionar tarefa
-        </button>
-      </div>
-
-      <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-        <div className="flex items-center gap-2 text-slate-300">
-          <Clock3 size={16} />
-          <span className="text-sm font-black">Foco de hoje</span>
-        </div>
-        <p className="mt-2 text-sm leading-6 text-slate-400">
-          Termine uma tarefa de alta prioridade antes de abrir novas demandas. O
-          painel destaca o que ainda consome horas.
-        </p>
-      </div>
-      </div>
-    </section>
   );
 }
 
