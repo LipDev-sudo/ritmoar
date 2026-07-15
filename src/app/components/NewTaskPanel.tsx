@@ -1,4 +1,4 @@
-import { Clock3, Plus } from "lucide-react";
+import { CircleAlert, Plus } from "lucide-react";
 import type { Dispatch, SetStateAction } from "react";
 import {
   priorityMeta,
@@ -12,109 +12,146 @@ type NewTaskPanelProps = {
   addTask: () => void;
 };
 
-export function NewTaskPanel({ newTask, setNewTask, addTask }: NewTaskPanelProps) {
+const inputClass =
+  "h-11 min-w-0 w-full rounded-xl border border-[#d7ded8] bg-white px-3 text-sm text-[#1d2521] outline-none placeholder:text-[#8a948e] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6b4f]";
+const labelClass =
+  "mb-1.5 block text-[0.68rem] font-bold uppercase tracking-[0.1em] text-[#68736d]";
+
+export function NewTaskPanel({
+  newTask,
+  setNewTask,
+  addTask,
+}: NewTaskPanelProps) {
   return (
-    <section className="min-w-0 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.045]">
+    <section className="min-w-0 overflow-hidden rounded-[22px] border border-[#dce2dd] bg-white shadow-[0_12px_30px_rgba(29,37,33,0.06)]">
       <div className="h-1 bg-[var(--accent)]" />
-      <div className="p-5">
-        <div className="flex items-center justify-between gap-3">
+      <div className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-lg font-black">Nova tarefa</h2>
-            <p className="text-sm text-slate-400">Registre contexto, responsável e prazo.</p>
+            <h2 className="text-lg font-bold text-[#1d2521]">Nova tarefa</h2>
+            <p className="mt-1 text-sm text-[#68736d]">
+              Registre contexto, responsável e prazo.
+            </p>
           </div>
-          <div className="shrink-0 rounded-2xl bg-cyan-300/10 p-3 text-cyan-200">
-            <Plus size={20} />
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--accent-soft)] text-[var(--accent)]">
+            <Plus size={19} aria-hidden="true" />
           </div>
         </div>
 
         <div className="mt-5 space-y-3">
           <label className="block min-w-0">
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Tarefa</span>
+            <span className={labelClass}>Tarefa</span>
             <input
               value={newTask.title}
-              onChange={(event) => setNewTask((task) => ({ ...task, title: event.target.value }))}
+              onChange={(event) =>
+                setNewTask((task) => ({ ...task, title: event.target.value }))
+              }
               onKeyDown={(event) => event.key === "Enter" && addTask()}
               placeholder="Ex: Aprovar roteiro da campanha"
-              className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
+              className={inputClass}
             />
           </label>
 
           <label className="block min-w-0">
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Cliente ou projeto</span>
+            <span className={labelClass}>Cliente ou projeto</span>
             <input
               value={newTask.client}
-              onChange={(event) => setNewTask((task) => ({ ...task, client: event.target.value }))}
+              onChange={(event) =>
+                setNewTask((task) => ({ ...task, client: event.target.value }))
+              }
               placeholder="Ex: Casa Mimo"
-              className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
+              className={inputClass}
             />
           </label>
 
           <label className="block min-w-0">
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Responsável</span>
+            <span className={labelClass}>Responsável</span>
             <input
               value={newTask.owner}
-              onChange={(event) => setNewTask((task) => ({ ...task, owner: event.target.value }))}
+              onChange={(event) =>
+                setNewTask((task) => ({ ...task, owner: event.target.value }))
+              }
               placeholder="Ex: Marina Costa"
-              className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
+              className={inputClass}
             />
           </label>
 
           <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="block min-w-0">
-              <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Prazo</span>
+              <span className={labelClass}>Prazo</span>
               <input
                 type="date"
                 value={newTask.dueDate}
-                onChange={(event) => setNewTask((task) => ({ ...task, dueDate: event.target.value }))}
-                className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
+                onChange={(event) =>
+                  setNewTask((task) => ({
+                    ...task,
+                    dueDate: event.target.value,
+                  }))
+                }
+                className={inputClass}
               />
             </label>
             <label className="block min-w-0">
-              <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Horas</span>
+              <span className={labelClass}>Horas</span>
               <input
                 type="number"
                 min="1"
                 max="24"
                 value={newTask.estimate}
-                onChange={(event) => setNewTask((task) => ({ ...task, estimate: Number(event.target.value) }))}
-                className="h-12 min-w-0 w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 text-sm text-white outline-none transition focus:border-cyan-300/60 focus-visible:ring-2 focus-visible:ring-cyan-200/50"
+                onChange={(event) =>
+                  setNewTask((task) => ({
+                    ...task,
+                    estimate: Number(event.target.value),
+                  }))
+                }
+                className={inputClass}
               />
             </label>
           </div>
 
-          <div>
-            <span className="mb-1.5 block text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Prioridade</span>
+          <fieldset>
+            <legend className={labelClass}>Prioridade</legend>
             <div className="grid grid-cols-3 gap-2">
-              {(["alta", "media", "baixa"] as TaskPriority[]).map((priority) => (
-                <button
-                  key={priority}
-                  type="button"
-                  onClick={() => setNewTask((task) => ({ ...task, priority }))}
-                  className={`rounded-2xl border px-2 py-2 text-xs font-black transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 ${newTask.priority === priority ? priorityMeta[priority].className : "border-white/10 bg-slate-950/40 text-slate-500 hover:text-slate-300"}`}
-                >
-                  {priorityMeta[priority].label}
-                </button>
-              ))}
+              {(["alta", "media", "baixa"] as TaskPriority[]).map(
+                (priority) => (
+                  <button
+                    key={priority}
+                    type="button"
+                    aria-pressed={newTask.priority === priority}
+                    onClick={() =>
+                      setNewTask((task) => ({ ...task, priority }))
+                    }
+                    className={`min-h-11 rounded-xl border px-2 text-xs font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6b4f] ${
+                      newTask.priority === priority
+                        ? priorityMeta[priority].className
+                        : "border-[#d7ded8] bg-white text-[#68736d] hover:bg-[#f5f7f5]"
+                    }`}
+                  >
+                    {priorityMeta[priority].label}
+                  </button>
+                ),
+              )}
             </div>
-          </div>
+          </fieldset>
 
           <button
             type="button"
             onClick={addTask}
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-cyan-300 font-black text-slate-950 transition hover:bg-cyan-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 text-sm font-bold text-[var(--accent-contrast,#fff)] transition hover:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1d2521]"
           >
-            <Plus size={17} />
+            <Plus size={17} aria-hidden="true" />
             Adicionar tarefa
           </button>
         </div>
 
-        <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-          <div className="flex items-center gap-2 text-slate-300">
-            <Clock3 size={16} />
-            <span className="text-sm font-black">Atenção da equipe</span>
+        <div className="mt-5 rounded-2xl border border-[#ead8bd] bg-[#fff8eb] p-4">
+          <div className="flex items-center gap-2 text-[#8d561b]">
+            <CircleAlert size={16} aria-hidden="true" />
+            <span className="text-sm font-bold">Atenção da equipe</span>
           </div>
-          <p className="mt-2 text-sm leading-6 text-slate-400">
-            Antes de iniciar uma nova frente, confirme quem responde pelas entregas de alta prioridade e pelos prazos de hoje.
+          <p className="mt-2 text-sm leading-6 text-[#6d6253]">
+            Antes de iniciar uma nova frente, confirme quem responde pelas
+            entregas de alta prioridade e pelos prazos de hoje.
           </p>
         </div>
       </div>

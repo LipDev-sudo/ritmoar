@@ -30,15 +30,15 @@ export const priorityMeta: Record<
 > = {
   alta: {
     label: "Alta",
-    className: "border-rose-400/30 bg-rose-400/10 text-rose-200",
+    className: "border-[#e4b9af] bg-[#f8e8e3] text-[#963f2e]",
   },
   media: {
     label: "Média",
-    className: "border-cyan-400/30 bg-cyan-400/10 text-cyan-200",
+    className: "border-[#e5cda9] bg-[#fbefdd] text-[#895116]",
   },
   baixa: {
     label: "Baixa",
-    className: "border-emerald-400/30 bg-emerald-400/10 text-emerald-200",
+    className: "border-[#bed1c3] bg-[#e8eee9] text-[#45614d]",
   },
 };
 
@@ -178,11 +178,11 @@ export function daysUntil(value: string) {
 }
 
 export function dueTone(task: Task) {
-  if (task.status === "done") return "text-emerald-300";
+  if (task.status === "done") return "text-[#2f6b4f]";
   const days = daysUntil(task.dueDate);
-  if (days < 0) return "text-rose-300";
-  if (days <= 1) return "text-amber-200";
-  return "text-slate-400";
+  if (days < 0) return "text-[#b04f39]";
+  if (days <= 1) return "text-[#9a5a16]";
+  return "text-[#68736d]";
 }
 
 export function dueLabel(task: Task) {

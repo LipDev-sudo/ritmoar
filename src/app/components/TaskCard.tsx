@@ -9,6 +9,7 @@ import {
   UserRound,
 } from "lucide-react";
 import {
+  dueLabel,
   dueTone,
   formatDate,
   nextStatus,
@@ -24,63 +25,82 @@ type TaskCardProps = {
   deleteTask: (id: string) => void;
 };
 
+const focusClass =
+  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f6b4f]";
+
 export function TaskCard({ task, updateStatus, deleteTask }: TaskCardProps) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-[#0b1020] p-4 shadow-xl shadow-black/20">
+    <article className="rounded-2xl border border-[#dce2dd] bg-white p-4 shadow-[0_5px_14px_rgba(29,37,33,0.05)]">
       <div className="flex items-start justify-between gap-3">
-        <div>
+        <div className="min-w-0">
           <span
-            className={`inline-flex rounded-full border px-2.5 py-1 text-[0.65rem] font-black uppercase tracking-[0.12em] ${priorityMeta[task.priority].className}`}
+            className={`inline-flex rounded-full border px-2.5 py-1 text-[0.66rem] font-bold uppercase tracking-[0.08em] ${priorityMeta[task.priority].className}`}
           >
             {priorityMeta[task.priority].label}
           </span>
-          <h4 className="mt-3 text-sm font-black leading-5 text-white">{task.title}</h4>
+          <h4 className="mt-3 text-sm font-bold leading-5 text-[#1d2521]">
+            {task.title}
+          </h4>
+          <p className="mt-1 truncate text-xs font-medium text-[#68736d]">
+            {task.client}
+          </p>
         </div>
         <button
           type="button"
           onClick={() => deleteTask(task.id)}
-          className="rounded-xl p-2 text-slate-600 transition hover:bg-rose-400/10 hover:text-rose-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200"
+          className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl text-[#8a948e] transition hover:bg-[#f8e8e3] hover:text-[#9d402f] ${focusClass}`}
           aria-label={`Remover tarefa: ${task.title}`}
         >
-          <Trash2 size={15} />
+          <Trash2 size={15} aria-hidden="true" />
         </button>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
-        <span className="rounded-full bg-white/5 px-2.5 py-1">{task.client}</span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-          <UserRound size={12} />
-          {task.owner}
+      <div className="mt-4 grid gap-2 text-xs text-[#5f6c65]">
+        <span className="inline-flex min-w-0 items-center gap-2">
+          <UserRound size={13} className="shrink-0 text-[#2f6b4f]" aria-hidden="true" />
+          <span className="truncate">{task.owner}</span>
         </span>
-        <span className={`inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1 ${dueTone(task)}`}>
-          <CalendarDays size={12} />
-          {formatDate(task.dueDate)}
+        <span className={`inline-flex items-center gap-2 ${dueTone(task)}`}>
+          <CalendarDays size={13} className="shrink-0" aria-hidden="true" />
+          <span>{dueLabel(task)} · {formatDate(task.dueDate)}</span>
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-2.5 py-1">
-          <Clock3 size={12} />
-          {task.estimate}h
+        <span className="inline-flex items-center gap-2">
+          <Clock3 size={13} className="shrink-0 text-[#77817c]" aria-hidden="true" />
+          <span>{task.estimate}h estimadas</span>
         </span>
       </div>
 
-      <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-3">
+      <div className="mt-4 flex items-center justify-between border-t border-[#e4e8e5] pt-3">
         <button
           type="button"
           disabled={task.status === "todo"}
           onClick={() => updateStatus(task.id, previousStatus(task.status))}
-          className="inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-slate-400 transition hover:bg-white/5 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-30"
+          className={`inline-flex min-h-10 items-center gap-1 rounded-xl px-2.5 text-xs font-semibold text-[#68736d] transition hover:bg-[#f1f4f2] hover:text-[#1d2521] disabled:cursor-not-allowed disabled:opacity-30 ${focusClass}`}
+          aria-label={`Voltar tarefa: ${task.title}`}
         >
-          <ChevronLeft size={14} />
+          <ChevronLeft size={14} aria-hidden="true" />
           Voltar
         </button>
         <button
           type="button"
           onClick={() => updateStatus(task.id, nextStatus(task.status))}
           disabled={task.status === "done"}
-          className="inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold text-cyan-200 transition hover:bg-cyan-300/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 disabled:cursor-not-allowed disabled:opacity-30"
+          className={`inline-flex min-h-10 items-center gap-1 rounded-xl bg-[#e5efe8] px-3 text-xs font-bold text-[#24563e] transition hover:bg-[#d9e9de] disabled:cursor-not-allowed disabled:opacity-45 ${focusClass}`}
+          aria-label={
+            task.status === "done"
+              ? `Tarefa concluída: ${task.title}`
+              : `Avançar tarefa: ${task.title}`
+          }
         >
-          {task.status === "done" ? <CheckCircle2 size={14} /> : <Circle size={14} />}
-          Avançar
-          <ChevronRight size={14} />
+          {task.status === "done" ? (
+            <CheckCircle2 size={14} aria-hidden="true" />
+          ) : (
+            <Circle size={14} aria-hidden="true" />
+          )}
+          {task.status === "done" ? "Concluída" : "Avançar"}
+          {task.status !== "done" ? (
+            <ChevronRight size={14} aria-hidden="true" />
+          ) : null}
         </button>
       </div>
     </article>
