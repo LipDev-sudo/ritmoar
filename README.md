@@ -38,8 +38,8 @@ O símbolo tipográfico representa três linhas de trabalho avançando. A marca 
 Requisitos: Node.js 22 e npm.
 
 ```bash
-git clone https://github.com/LipDev-sudo/Dashboard-G-Pro.git
-cd Dashboard-G-Pro
+git clone https://github.com/LipDev-sudo/ritmoar.git
+cd ritmoar
 npm ci
 npm run dev
 ```

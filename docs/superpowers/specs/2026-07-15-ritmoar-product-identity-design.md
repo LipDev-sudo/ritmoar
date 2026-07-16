@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Transformar o fluxo ativo do Dashboard G-Pro em uma demonstração coerente de um produto fictício de gestão de trabalho para pequenas equipes, freelancers e agências, preservando as funcionalidades atuais e sem alterar a arquitetura experimental que não participa da aplicação em produção.
+Consolidar o fluxo ativo como uma demonstração coerente do produto fictício Ritmoar para gestão de trabalho de pequenas equipes, freelancers e agências, preservando as funcionalidades atuais e sem alterar a arquitetura experimental que não participa da aplicação em produção.
 
 ## Posicionamento aprovado
 

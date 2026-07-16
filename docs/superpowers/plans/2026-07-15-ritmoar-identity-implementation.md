@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
-**Goal:** Transformar o fluxo ativo do Dashboard G-Pro na demonstração profissional Ritmoar, preservando todas as funcionalidades e tornando responsáveis, prioridades, prazos e andamento imediatamente legíveis em desktop e mobile.
+**Goal:** Consolidar o fluxo ativo como a demonstração profissional Ritmoar, preservando todas as funcionalidades e tornando responsáveis, prioridades, prazos e andamento imediatamente legíveis em desktop e mobile.
 
 **Architecture:** Manter o estado local e a composição existentes em `App.tsx`, limitando as mudanças aos componentes ativos, ao modelo de tarefas, aos metadados e aos assets. Acrescentar `owner` ao modelo com normalização retrocompatível de dados no `localStorage`; não importar nem modificar a arquitetura experimental inativa.
 
@@ -307,7 +307,7 @@ Converter os checkboxes concluídos para `[x]` e registrar desvios objetivos, se
 
 - [x] **Step 4: validar documentação e assets**
 
-Run: `rg -n -i "Dashboard G-Pro|Organize tarefas, prazos e prioridades|Portfolio LipDev|Plataforma de pedidos" src index.html README.md tests public docs --glob '!docs/superpowers/specs/**' --glob '!docs/superpowers/plans/**'`
+Run: `rg -n -i "Organize tarefas, prazos e prioridades|Portfolio LipDev|Plataforma de pedidos" src index.html README.md tests public docs --glob '!docs/superpowers/specs/**' --glob '!docs/superpowers/plans/**'`
 
 Expected: nenhum nome antigo no produto ativo, testes, README ou assets finais.
 
